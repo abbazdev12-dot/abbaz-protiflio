@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070914" />
+    <meta
+      name="description"
+      content="An interactive portfolio exploring ethical hacking, software development, and the markets."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ABBAS.P.A — Interactive Portfolio" />
+    <meta
+      property="og:description"
+      content="An interactive portfolio exploring ethical hacking, software development, and the markets."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="author" content="ABBAS.P.A" />
+    <title>ABBAS.P.A — Interactive Portfolio</title>
+    <style>
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    background: #f3e5ab;
+    color: #050814;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    z-index: 999;
+    transition: top 200ms ease;
+  }
+  .skip-link:focus { top: 0; }
+  .world-footer {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px clamp(22px, 8vw, 112px);
+    border-top: 1px solid rgb(255 255 255 / 8%);
+    background: rgb(5 8 20 / 85%);
+    color: rgb(228 234 250 / 55%);
+    font-size: 12px;
+    backdrop-filter: blur(12px);
+  }
+  .world-footer__nav { display: flex; gap: 20px; }
+  .world-footer__nav a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+  .world-footer__nav a:hover { color: #f3e5ab; }
+  .world-footer__copy { margin: 0; }
+</style>
+  </head>
+  <body>
+    <a class="skip-link" href="#home">Skip to main content</a>
+    <div id="app">
+      <canvas class="webgl" id="webgl" aria-hidden="true"></canvas>
+      <div class="reveal-flash" id="reveal-flash" aria-hidden="true"></div>
+
+      <section
+        class="portfolio-intro portfolio-intro--loading"
+        id="stage-one"
+        aria-label="Portfolio introduction"
+      ></section>
+
+      <main class="stage stage--locked world-stage" id="stage-two" aria-hidden="true" inert>
+        <section class="world-section world-section--home" id="home" aria-labelledby="home-title">
+          <div class="world-section__copy home-hero__copy">
+            <p class="section-kicker">01 / INTRODUCTION</p>
+            <h2 id="home-title">Hi, I’m <span data-config="name"></span>.<br /><span class="home-hero__preposition">I am a</span></h2>
+            <div class="hero-role-flip" id="hero-role-flip" aria-live="polite" aria-atomic="true">
+              <span class="hero-role-flip__sheet">
+                <span class="hero-role-flip__face hero-role-flip__face--front" id="hero-role-current"></span>
+                <span class="hero-role-flip__face hero-role-flip__face--back" id="hero-role-next" aria-hidden="true"></span>
+              </span>
+              <span class="hero-role-flip__counter" id="hero-role-counter" aria-hidden="true"></span>
+            </div>
+            <p data-config="tagline"></p>
+            <p class="profile-meta">
+              <span><strong id="profile-age"></strong> years old</span>
+              <span id="profile-level"></span>
+            </p>
+            <div class="home-hero__actions">
+              <a class="hero-cta hero-cta--primary" href="#contact">Hire me</a>
+              <button
+                type="button"
+                class="hero-cta hero-cta--secondary home-hero__bio-toggle"
+                id="home-hero-bio-toggle"
+                aria-expanded="false"
+                aria-controls="home-hero-bio"
+              >
+                <span class="home-hero__bio-label" id="home-hero-bio-toggle-label">More about me</span>
+                <span class="home-hero__bio-arrow" aria-hidden="true">
+                  <span class="home-hero__bio-arrow-glyph">↗</span>
+                </span>
+              </button>
+              <a class="hero-cta hero-cta--secondary" href="#projects">See my work</a>
+            </div>
+            <section
+              class="home-hero__bio"
+              id="home-hero-bio"
+              aria-labelledby="home-hero-bio-title"
+              aria-hidden="true"
+              inert
+            >
+              <div class="home-hero__bio-inner">
+                <h3 class="home-hero__bio-title" id="home-hero-bio-title">A little about me</h3>
+                <p class="home-hero__bio-story">
+                  My journey started with curiosity about computers and markets. I learned web
+                  fundamentals by building small apps, then explored full-stack projects and
+                  ethical security in authorized labs. I keep learning through hands-on builds,
+                  journaling, and market study.
+                </p>
+                <div class="home-hero__bio-stack">
+                  <h4>Tools I work with</h4>
+                  <ul id="home-hero-bio-stack"></ul>
+                </div>
+                <nav class="home-hero__bio-links" id="home-hero-bio-links" aria-label="More about Abbas">
+                  <a href="#projects">Projects <span aria-hidden="true">↗</span></a>
+                  <a href="#contact">Contact <span aria-hidden="true">↗</span></a>
+                </nav>
+              </div>
+            </section>
+          </div>
+          <aside class="home-hero__aside">
+            <figure class="hero-portrait" id="hero-portrait">
+              <span class="hero-portrait__placeholder" role="img" aria-label="Portrait placeholder">
+                <span class="hero-portrait__head"></span>
+                <span class="hero-portrait__body"></span>
+              </span>
+              <img
+                id="hero-portrait-image"
+                alt="Portfolio portrait"
+                width="1920"
+                height="1080"
+                decoding="async"
+                fetchpriority="high"
+                hidden
+              />
+            </figure>
+            <div class="ability-card" id="ability-card">
+              <button
+                type="button"
+                class="ability-card__toggle"
+                id="ability-toggle"
+                aria-haspopup="dialog"
+                aria-controls="ability-profile"
+              >
+                <span class="ability-card__core" aria-hidden="true">
+                  <span id="ability-card-count"></span>
+                </span>
+                <span class="ability-card__content">
+                  <span class="ability-card__eyebrow">ABILITY MATRIX</span>
+                  <span class="ability-card__title" id="ability-title"></span>
+                  <span class="ability-card__action">OPEN FOCUS PROFILE</span>
+                </span>
+                <span class="ability-card__hint" aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="world-section world-section--doors" id="doors" aria-labelledby="doors-title">
+          <div class="doors-sticky" id="doors-sticky">
+            <header class="section-heading">
+              <p class="section-kicker">02 / FOUR WORLDS</p>
+              <h2 id="doors-title" tabindex="-1">Four doors. One mind.</h2>
+              <p class="door-selection" id="door-selection" aria-live="polite">
+                <span class="door-selection__title" id="door-selection-title">CHOOSE A WORLD</span>
+                <span class="door-selection__subtitle" id="door-selection-subtitle">Step inside the ideas, work, and becoming.</span>
+              </p>
+            </header>
+            <div class="door-fallback" id="door-fallback" role="group" aria-labelledby="doors-title"></div>
+          </div>
+        </section>
+
+        <section class="world-section world-section--editorial world-section--timeline" id="timeline" aria-labelledby="timeline-title">
+          <div class="post-door-transition" aria-hidden="true"></div>
+          <header class="section-heading">
+            <p class="section-kicker">03 / MY STORY</p>
+            <h2 id="timeline-title">Let's go back in time.</h2>
+            <p>A few chapters in a journey still unfolding — built from learning, experiments, and reflection.</p>
+          </header>
+          <div class="timeline-editorial">
+            <aside class="timeline-era" aria-hidden="true">
+              <span class="timeline-era__label">THE JOURNEY SO FAR</span>
+              <strong class="timeline-era__year" id="timeline-year">2026</strong>
+              <span class="timeline-era__note">AND WHAT COMES NEXT</span>
+              <span class="timeline-era__dial"></span>
+            </aside>
+            <ol class="timeline-list" id="timeline-list" aria-label="Personal timeline"></ol>
+          </div>
+        </section>
+
+        <section class="world-section world-section--editorial" id="skills" aria-labelledby="skills-title">
+          <header class="section-heading">
+            <p class="section-kicker">04 / CAPABILITIES</p>
+            <h2 id="skills-title">Craft, with intention.</h2>
+            <p>Focused on reliable engineering, authorized security work, and disciplined market research.</p>
+          </header>
+          <div class="skill-grid" id="skill-grid"></div>
+        </section>
+
+        <section class="world-section world-section--editorial" id="projects" aria-labelledby="projects-title">
+          <header class="section-heading">
+            <p class="section-kicker">05 / PROJECTS</p>
+            <h2 id="projects-title">A selection of work.</h2>
+            <p>Experiments and learning projects, with verified details added as each develops.</p>
+          </header>
+          <div class="project-filters" id="project-filters" role="group" aria-label="Filter projects"></div>
+          <p class="sr-only" id="project-filter-status" role="status" aria-live="polite"></p>
+          <div class="project-grid" id="project-grid"></div>
+        </section>
+
+        <section class="world-section world-section--editorial world-section--contact" id="contact" aria-labelledby="contact-title">
+          <div class="contact-card">
+            <p class="section-kicker">06 / CONTACT</p>
+            <h2 id="contact-title">Let’s build something thoughtful.</h2>
+            <p class="contact-availability" id="contact-availability"></p>
+            <a class="contact-email" id="contact-email" href="mailto:">Add an email address in config.js</a>
+            <button type="button" class="text-link copy-email" id="copy-email" hidden>Copy email</button>
+            <p class="contact-toast" id="contact-toast" role="status" aria-live="polite"></p>
+            <div class="social-links" id="social-links" aria-label="Social profiles"></div>
+          </div>
+        </section>
+      </main>
+
+      <section
+        class="collection-view"
+        id="collection-view"
+        data-lenis-prevent
+        aria-labelledby="collection-title"
+        hidden
+        inert
+      >
+        <div class="collection-view__shell">
+          <button type="button" class="collection-view__back" id="collection-back">
+            <span aria-hidden="true">←</span> Back to the doors
+          </button>
+          <header class="collection-view__heading">
+            <p class="section-kicker" id="collection-kicker">COLLECTION</p>
+            <h1 id="collection-title"></h1>
+            <p id="collection-description"></p>
+          </header>
+          <section class="collection-archive-intro" id="collection-archive-intro" aria-labelledby="collection-archive-title">
+            <div class="collection-archive-intro__copy">
+              <p class="section-kicker">COLLECTED / VISUAL ARCHIVE</p>
+              <h2 id="collection-archive-title">A record in progress.</h2>
+              <p>Moments and screens gathered from this world, presented as they are.</p>
+              <p class="collection-archive-intro__count">
+                <span id="collection-archive-total">0</span>
+                <span>recordings</span>
+              </p>
+            </div>
+            <figure class="collection-archive-intro__portrait" id="collection-archive-portrait" hidden>
+              <img src="/images/abbas-portrait.jpeg" alt="Portrait of Abbas" loading="eager" decoding="async" />
+              <figcaption>ME / ABBAS.P.A</figcaption>
+            </figure>
+          </section>
+          <section class="skill-world" id="skill-world" aria-label="Skill world showcase">
+            <div class="skill-world__intro">
+              <p class="section-kicker" id="skill-world-kicker">IN THIS WORLD</p>
+              <h2 id="skill-world-title"></h2>
+              <p id="skill-world-caption"></p>
+              <ul class="skill-world__tags" id="skill-world-tags" aria-label="Skills and tools"></ul>
+            </div>
+            <div class="skill-world__visual" id="skill-world-visual"></div>
+          </section>
+          <section class="skill-world__process" aria-labelledby="skill-world-process-title">
+            <div class="collection-view__section-heading">
+              <h2 id="skill-world-process-title">Process</h2>
+            </div>
+            <ol class="skill-world__steps" id="skill-world-process"></ol>
+          </section>
+          <section class="collection-view__media" aria-labelledby="collection-media-title">
+            <div class="collection-view__section-heading">
+              <h2 id="collection-media-title">Video archive</h2>
+              <span id="collection-count"></span>
+            </div>
+            <nav class="collection-view__filters" id="collection-filters" aria-label="Video archive filters"></nav>
+            <div class="collection-grid" id="collection-grid"></div>
+          </section>
+          <section class="collection-view__projects" id="collection-projects" hidden>
+            <div class="collection-view__section-heading">
+              <h2>Related projects</h2>
+            </div>
+            <div class="collection-projects" id="collection-project-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <dialog class="collection-player" id="collection-player" aria-labelledby="collection-player-title">
+        <div class="collection-player__shell">
+          <div class="collection-player__topline">
+            <p class="section-kicker">VIDEO ARCHIVE</p>
+            <button type="button" class="collection-player__close" id="collection-player-close" aria-label="Close video player">×</button>
+          </div>
+          <video id="collection-player-video" controls playsinline preload="metadata"></video>
+          <div class="collection-player__details">
+            <div>
+              <p class="collection-player__position" id="collection-player-position"></p>
+              <h2 id="collection-player-title"></h2>
+              <p id="collection-player-description"></p>
+              <p class="collection-player__status" id="collection-player-status" role="status" aria-live="polite"></p>
+            </div>
+            <div class="collection-player__actions">
+              <button type="button" id="collection-player-toggle" aria-pressed="false">Play video</button>
+              <button type="button" id="collection-player-previous">Previous</button>
+              <button type="button" id="collection-player-next">Next</button>
+              <button type="button" id="collection-player-fullscreen">Full screen</button>
+            </div>
+          </div>
+        </div>
+      </dialog>
+
+      <div class="world-ui" id="world-ui" aria-hidden="true" inert>
+        <nav class="world-nav" aria-label="Portfolio sections">
+          <div class="world-nav__links">
+            <a href="#home" data-world-progress="0">Home</a>
+            <a href="#timeline" data-world-progress="0.82">My Story</a>
+            <a href="#skill-forex-trading" data-world-progress="0.14">Forex</a>
+            <a href="#skill-full-stack-development" data-world-progress="0.3">Web Dev</a>
+            <a href="#skill-ethical-hacking" data-world-progress="0.45">Cybersecurity</a>
+            <a href="#skill-futures-trading" data-world-progress="0.58">Futures</a>
+            <a href="#projects" data-world-progress="0.7">Projects</a>
+            <a href="#contact" data-world-progress="0.99">Contact</a>
+          </div>
+
+          <div class="world-tools" aria-label="Portfolio controls">
+            <button type="button" class="world-tool" id="command-button" aria-keyshortcuts="Control+K Meta+K">⌘K</button>
+            <button type="button" class="world-tool" id="free-look-button" aria-pressed="false">Free Look</button>
+            <button type="button" class="world-tool" id="motion-button" aria-pressed="false">Reduce motion</button>
+          </div>
+          <span class="availability-badge">
+            <span class="availability-badge__dot" aria-hidden="true"></span>
+            <span id="availability-label"></span>
+            <span class="availability-badge__local-label" aria-hidden="true">Local time</span>
+            <time class="availability-badge__time" id="local-time" aria-label="Local time and date"></time>
+          </span>
+        </nav>
+
+        <div class="depth-meter" id="depth-meter" aria-live="polite">DEPTH 005m</div>
+      </div>
+
+      <div class="sr-only" id="load-error" role="alert"></div>
+
+      <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title">
+        <div class="command-panel">
+          <label class="sr-only" id="command-title" for="command-input">Jump to a portfolio section</label>
+          <input id="command-input" type="search" placeholder="Jump to a section..." autocomplete="off" />
+          <div class="command-results" id="command-results"></div>
+          <p>Use ↑ ↓ to navigate · Enter to open · Esc to close</p>
+        </div>
+      </dialog>
+
+      <dialog class="project-dialog" id="project-dialog" aria-labelledby="project-dialog-title">
+        <div class="project-dialog__shell">
+          <nav class="project-dialog__navigation" aria-label="Project detail navigation">
+            <button type="button" class="project-dialog__back" id="project-dialog-back">← Back to projects</button>
+            <button type="button" class="dialog-close" id="project-dialog-close" aria-label="Close project details">×</button>
+          </nav>
+          <div id="project-dialog-content"></div>
+        </div>
+      </dialog>
+
+      <dialog class="ability-profile" id="ability-profile" aria-labelledby="ability-profile-title">
+        <div
+          class="ability-profile__shell"
+          role="region"
+          aria-label="Ability profile content"
+          tabindex="0"
+          data-lenis-prevent
+        >
+          <header class="ability-profile__topbar">
+            <p class="ability-profile__wordmark">PROFILE / ABBAS.P.A</p>
+            <button type="button" class="ability-profile__back" id="ability-profile-back">
+              <span aria-hidden="true">←</span> Return to portfolio
+            </button>
+          </header>
+          <div class="ability-profile__content" id="ability-profile-content"></div>
+        </div>
+      </dialog>
+
+      <footer class="world-footer" role="contentinfo" aria-label="Site footer">
+        <nav class="world-footer__nav" aria-label="Footer navigation">
+          <a href="#projects">Projects</a>
+          <a href="#home">Home</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <p class="world-footer__copy">© 2026 ABBAS.P.A</p>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

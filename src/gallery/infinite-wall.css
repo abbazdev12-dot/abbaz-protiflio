@@ -1,0 +1,271 @@
+.collection-view.is-video-wall {
+  overflow: hidden;
+  background: #070914;
+  color: #eef2ff;
+  scrollbar-width: none;
+}
+
+.collection-view.is-video-wall .collection-view__shell {
+  display: none;
+}
+
+.video-wall {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgb(42 56 93 / 20%), transparent 58%),
+    #070914;
+  color: #eef2ff;
+  isolation: isolate;
+  perspective: 1300px;
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+}
+
+.video-wall::before,
+.video-wall::after {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.video-wall::before {
+  background:
+    linear-gradient(90deg, #070914 0%, transparent 16%, transparent 84%, #070914 100%),
+    linear-gradient(180deg, #070914 0%, transparent 18%, transparent 82%, #070914 100%);
+  opacity: 0.48;
+}
+
+.video-wall::after {
+  background: radial-gradient(ellipse at center, transparent 48%, rgb(1 3 10 / 48%) 100%);
+}
+
+.video-wall__toolbar {
+  position: absolute;
+  z-index: 5;
+  top: max(18px, env(safe-area-inset-top));
+  left: max(18px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: calc(100% - 36px);
+}
+
+.video-wall__back {
+  display: inline-flex;
+  min-height: 42px;
+  flex: none;
+  align-items: center;
+  padding: 0 15px;
+  border: 1px solid rgb(222 230 255 / 20%);
+  border-radius: 999px;
+  background: rgb(7 9 20 / 78%);
+  color: #eff2ff;
+  cursor: pointer;
+  font: 500 11px/1.2 var(--mono);
+  letter-spacing: 0.015em;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.video-wall__back:hover {
+  border-color: rgb(144 187 255 / 58%);
+  background: rgb(25 34 61 / 90%);
+  transform: translateY(-1px);
+}
+
+.video-wall__title {
+  overflow: hidden;
+  margin: 0;
+  color: rgb(229 234 255 / 77%);
+  font: 500 10px/1.2 var(--mono);
+  letter-spacing: 0.2em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-wall__viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  outline: none;
+  perspective: 1300px;
+  touch-action: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.video-wall__viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.video-wall__viewport:focus-visible {
+  outline: 1px solid rgb(111 202 255 / 46%);
+  outline-offset: -6px;
+}
+
+.video-wall__surface {
+  position: absolute;
+  inset: -8%;
+  transform: rotateX(3.2deg) rotateY(-2.2deg) scale(1.05);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.video-wall__track {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.video-wall__tile {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgb(223 231 255 / 13%);
+  border-radius: 8px;
+  background: #101523;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 40%);
+  color: inherit;
+  cursor: pointer;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.video-wall__tile:hover,
+.video-wall__tile:focus-visible {
+  border-color: rgb(143 196 255 / 65%);
+  box-shadow: 0 16px 48px rgb(57 128 234 / 24%), 0 0 24px rgb(86 171 255 / 18%);
+}
+
+.video-wall__tile:focus-visible {
+  outline: 2px solid #78caff;
+  outline-offset: 3px;
+  z-index: 2 !important;
+}
+
+.video-wall__preview {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #101523;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.video-wall__tile-shade {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(5 8 17 / 8%) 24%, rgb(5 8 17 / 82%) 100%);
+  pointer-events: none;
+}
+
+.video-wall__tile-title,
+.video-wall__tile-category {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  left: 12px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.video-wall__tile-title {
+  bottom: 27px;
+  color: #f2f4ff;
+  font: 600 12px/1.3 "Manrope", "Segoe UI", sans-serif;
+}
+
+.video-wall__tile-category {
+  bottom: 12px;
+  color: rgb(205 216 242 / 64%);
+  font: 500 8px/1.2 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.video-wall__hint {
+  position: absolute;
+  z-index: 5;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  margin: 0;
+  padding: 9px 13px;
+  border: 1px solid rgb(222 230 255 / 12%);
+  border-radius: 999px;
+  background: rgb(7 9 20 / 72%);
+  color: rgb(223 229 250 / 66%);
+  font: 500 9px/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 600px) {
+  .video-wall__toolbar {
+    top: max(12px, env(safe-area-inset-top));
+    left: max(12px, env(safe-area-inset-left));
+    gap: 11px;
+    max-width: calc(100% - 24px);
+  }
+
+  .video-wall__back {
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: 10px;
+  }
+
+  .video-wall__title {
+    font-size: 9px;
+  }
+
+  .video-wall__tile {
+    border-radius: 6px;
+  }
+
+  .video-wall__tile-title {
+    right: 8px;
+    left: 8px;
+    bottom: 23px;
+    font-size: 10px;
+  }
+
+  .video-wall__tile-category {
+    right: 8px;
+    left: 8px;
+    bottom: 9px;
+    font-size: 7px;
+  }
+
+  .video-wall__hint {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-wall,
+  .video-wall__surface,
+  .video-wall__track,
+  .video-wall__tile,
+  .video-wall__back {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+  }
+}
