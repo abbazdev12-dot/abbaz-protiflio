@@ -45,7 +45,7 @@
   align-content: center;
   gap: clamp(20px, 4vw, 52px);
   padding: clamp(88px, 12vh, 128px) clamp(24px, 8vw, 112px) clamp(40px, 6vh, 64px);
-  background: linear-gradient(180deg, #ebe7e4 0%, #f1eeeb 72%, #e7e2de 100%);
+  background: var(--bg);
   color: #141622;
 }
 
@@ -53,7 +53,7 @@
   position: absolute;
   z-index: 0;
   inset: 0;
-  background: linear-gradient(180deg, transparent 20%, #e5dfdb 100%);
+  background: none;
   content: "";
   opacity: var(--hero-darken, 0);
   pointer-events: none;
@@ -818,10 +818,10 @@ button:focus-visible {
   display: grid;
   grid-template-rows:
     minmax(100svh, auto)
-    minmax(200svh, auto)
+    minmax(100svh, auto)
     repeat(3, minmax(140svh, auto))
     minmax(100svh, auto);
-  min-height: 820svh;
+  min-height: 720svh;
   overflow: clip;
   background: #050814;
 }
@@ -841,17 +841,17 @@ button:focus-visible {
 /* ── 04. FOUR-DOOR EXPERIENCE ────────────────────────────────────────── */
 .world-section--doors {
   display: block;
-  min-height: 200svh;
+  min-height: 100svh;
   padding: 0;
 }
 
 .doors-sticky {
-  position: sticky;
+  position: relative;
   top: 0;
   isolation: isolate;
   display: grid;
   height: 100svh;
-  min-height: 600px;
+  min-height: 100svh;
   grid-template-rows: auto minmax(0, 1fr);
   align-content: start;
   gap: clamp(18px, 3vh, 34px);
@@ -3652,47 +3652,6 @@ body.is-collection-open #app {
   font-size: 11px;
 }
 
-.is-dark-world .world-nav {
-  border-bottom-color: rgb(255 255 255 / 12%);
-  background: transparent;
-  box-shadow: none;
-}
-
-.is-dark-world .world-nav__brand {
-  color: #f7f5ef;
-}
-
-.is-dark-world .world-nav__links a,
-.is-dark-world .availability-badge {
-  color: rgb(237 240 250 / 74%);
-}
-
-.is-dark-world .world-nav__links a:hover,
-.is-dark-world .world-nav__links a:focus-visible,
-.is-dark-world .world-nav__links a[aria-current="location"] {
-  color: var(--gold);
-}
-
-.is-dark-world .world-nav__cta--secondary {
-  border-color: rgb(255 255 255 / 16%);
-  background: rgb(255 255 255 / 5%);
-  color: #f7f5ef;
-}
-
-.is-dark-world .availability-badge__time {
-  border-color: rgb(255 255 255 / 15%);
-  color: rgb(243 229 171 / 78%);
-}
-
-.is-dark-world .availability-badge {
-  border-color: rgb(255 255 255 / 14%);
-  background: rgb(8 10 14 / 45%);
-}
-
-.is-dark-world .availability-badge__local-label {
-  color: rgb(235 239 255 / 72%);
-}
-
 .depth-meter {
   color: rgb(235 239 255 / 54%);
   font: 400 9px/1.5 var(--mono);
@@ -3729,10 +3688,10 @@ body.is-collection-open #app {
   .world-stage {
     grid-template-rows:
       minmax(100svh, auto)
-      minmax(200svh, auto)
+      minmax(100svh, auto)
       repeat(3, minmax(140svh, auto))
       minmax(100svh, auto);
-    min-height: 820svh;
+    min-height: 720svh;
   }
 
   .world-section.world-section--doors {
@@ -4204,15 +4163,12 @@ body.is-collection-open #app {
 
 /* ── 16. EDITORIAL WORLD (AFTER THE DOORS) ──────────────────────────── */
 .world-section--editorial {
-  --editorial-ink: #272522;
-  --editorial-muted: #716b65;
-  --editorial-rule: rgb(71 59 49 / 16%);
+  --editorial-ink: var(--fg);
+  --editorial-muted: var(--muted);
+  --editorial-rule: var(--line);
   isolation: isolate;
   color: var(--editorial-ink);
-  background-color: #f8f4ee;
-  background-image:
-    radial-gradient(ellipse at 82% 18%, rgb(230 185 157 / 16%), transparent 34%),
-    linear-gradient(180deg, #fcfaf6 0%, #f5efe8 100%);
+  background: var(--bg);
 }
 
 .world-section--editorial .section-heading {
@@ -4249,19 +4205,7 @@ body.is-collection-open #app {
   justify-content: flex-start;
   gap: clamp(30px, 4vh, 48px);
   padding: 0 clamp(22px, 8vw, 112px) clamp(90px, 12vh, 140px);
-  background-color: #f8f4ee;
-  background-image:
-    radial-gradient(ellipse at 84% 52%, rgb(230 185 157 / 15%), transparent 36%),
-    linear-gradient(180deg, #fbf8f3 0%, #f5efe8 100%);
-}
-
-.post-door-transition {
-  width: 100vw;
-  height: clamp(150px, 22svh, 240px);
-  flex: 0 0 auto;
-  background:
-    radial-gradient(ellipse at 50% 100%, rgb(231 181 149 / 32%), transparent 50%),
-    linear-gradient(180deg, #0a0c0f 0%, #181513 24%, #6a4b3b 52%, #d7b29b 78%, #fbf8f3 100%);
+  background: var(--bg);
 }
 
 .world-section--timeline .section-heading h2 {
@@ -4389,7 +4333,7 @@ body.is-collection-open #app {
   height: 7px;
   border: 1px solid #a76e4d;
   border-radius: 50%;
-  background: #f8f4ee;
+  background: var(--bg);
   box-shadow: 0 0 0 4px rgb(167 110 77 / 9%);
   content: "";
   transition: background 380ms ease, box-shadow 380ms ease, transform 380ms ease;
@@ -4436,15 +4380,11 @@ body.is-collection-open #app {
 }
 
 #skills.world-section--editorial {
-  background-image:
-    radial-gradient(ellipse at 8% 75%, rgb(239 208 186 / 22%), transparent 36%),
-    linear-gradient(180deg, #f7f1e9 0%, #fbf8f3 100%);
+  background: var(--bg);
 }
 
 #projects.world-section--editorial {
-  background-image:
-    radial-gradient(ellipse at 90% 20%, rgb(231 194 171 / 18%), transparent 35%),
-    linear-gradient(180deg, #f4ede5 0%, #faf7f2 100%);
+  background: var(--bg);
 }
 
 .world-section--editorial .premium-card {
@@ -4568,9 +4508,7 @@ body.is-collection-open #app {
 
 .world-section--contact {
   min-height: 92svh;
-  background-image:
-    radial-gradient(ellipse at 50% 0%, rgb(226 183 153 / 26%), transparent 48%),
-    linear-gradient(180deg, #f7f0e8 0%, #eee4da 100%);
+  background: var(--bg);
 }
 
 .world-section--contact .contact-card {
@@ -4606,38 +4544,6 @@ body.is-collection-open #app {
   color: #70685f;
 }
 
-.is-editorial-world .world-nav {
-  border-bottom-color: rgb(71 59 49 / 15%);
-  background: rgb(248 244 238 / 92%);
-  box-shadow: 0 8px 26px rgb(62 48 36 / 5%);
-}
-
-.is-editorial-world .world-nav__brand,
-.is-editorial-world .world-nav__links a,
-.is-editorial-world .availability-badge {
-  color: #39342f;
-}
-
-.is-editorial-world .world-nav__links a:hover,
-.is-editorial-world .world-nav__links a:focus-visible,
-.is-editorial-world .world-nav__links a[aria-current="location"] {
-  color: #a76e4d;
-}
-
-.is-editorial-world .availability-badge {
-  border-color: rgb(71 59 49 / 14%);
-  background: rgb(255 253 250 / 75%);
-}
-
-.is-editorial-world .availability-badge__time {
-  border-color: rgb(71 59 49 / 16%);
-  color: #70685f;
-}
-
-.is-editorial-world .availability-badge__local-label {
-  color: #70685f;
-}
-
 @media (max-width: 900px) {
   .timeline-editorial {
     grid-template-columns: minmax(200px, 0.7fr) minmax(0, 1.3fr);
@@ -4650,10 +4556,6 @@ body.is-collection-open #app {
     min-height: auto;
     gap: 38px;
     padding: 0 22px 88px;
-  }
-
-  .post-door-transition {
-    height: clamp(155px, 27svh, 240px);
   }
 
   .world-section--editorial .section-heading h2 {
@@ -4747,9 +4649,7 @@ body.is-collection-open #app {
 #projects.world-section--editorial {
   isolation: isolate;
   color: #eee9df;
-  background:
-    radial-gradient(ellipse at 88% 8%, rgb(189 139 75 / 12%), transparent 34rem),
-    linear-gradient(180deg, #0b0c0e 0%, #090a0c 55%, #0d0e10 100%);
+  background: var(--bg);
 }
 
 #projects .section-heading {

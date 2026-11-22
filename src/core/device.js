@@ -8,7 +8,7 @@ export function getDeviceProfile() {
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
     weak: memory <= 4 || cores <= 4 || coarsePointer,
     mobile: width < 768,
-    pixelRatioCap: width < 768 ? 1.5 : 2,
+    pixelRatioCap: 1.5,
     webglPreferred: !coarsePointer || width >= 768
   };
 }

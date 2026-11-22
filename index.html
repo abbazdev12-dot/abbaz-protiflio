@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#070914" />
+    <meta name="theme-color" content="#05060A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <meta
       name="description"
       content="An interactive portfolio exploring ethical hacking, software development, and the markets."
@@ -23,7 +30,7 @@
     top: -100%;
     left: 1rem;
     padding: 0.5rem 1rem;
-    background: #f3e5ab;
+    background: #EDEFF6;
     color: #050814;
     font-size: 14px;
     font-weight: 600;
@@ -53,7 +60,7 @@
     text-decoration: none;
     transition: color 180ms ease;
   }
-  .world-footer__nav a:hover { color: #f3e5ab; }
+  .world-footer__nav a:hover { color: #6C63FF; }
   .world-footer__copy { margin: 0; }
 </style>
   </head>
@@ -171,17 +178,14 @@
             <header class="section-heading">
               <p class="section-kicker">02 / FOUR WORLDS</p>
               <h2 id="doors-title" tabindex="-1">Four doors. One mind.</h2>
-              <p class="door-selection" id="door-selection" aria-live="polite">
-                <span class="door-selection__title" id="door-selection-title">CHOOSE A WORLD</span>
-                <span class="door-selection__subtitle" id="door-selection-subtitle">Step inside the ideas, work, and becoming.</span>
-              </p>
+              <p class="door-heading-subtitle">Step inside the ideas, work, and becoming.</p>
             </header>
             <div class="door-fallback" id="door-fallback" role="group" aria-labelledby="doors-title"></div>
+            <p class="door-hover-description" id="door-hover-description" aria-live="polite" aria-atomic="true">Choose a world</p>
           </div>
         </section>
 
         <section class="world-section world-section--editorial world-section--timeline" id="timeline" aria-labelledby="timeline-title">
-          <div class="post-door-transition" aria-hidden="true"></div>
           <header class="section-heading">
             <p class="section-kicker">03 / MY STORY</p>
             <h2 id="timeline-title">Let's go back in time.</h2>

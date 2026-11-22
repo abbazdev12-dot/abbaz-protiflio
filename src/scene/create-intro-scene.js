@@ -7,6 +7,8 @@ import { createWorldScenes } from "./world-scenes.js";
 
 const GOLD = 0xf3e5ab;
 const BG = 0x050814;
+const MIN_DOOR_PIXEL_RATIO = 0.75;
+const DOOR_PIXEL_RATIO_STEP = 0.15;
 
 const introScenes = new WeakMap();
 
@@ -44,11 +46,12 @@ async function buildIntroScene(canvas, config) {
     alpha: true,
     powerPreference: "high-performance",
   });
+  let rendererPixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
   renderer.setClearColor(BG, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(rendererPixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -137,7 +140,7 @@ async function buildIntroScene(canvas, config) {
   let revealTimelineActive = false;
   let revealHasCompleted = false;
 
-  const worldScenes = createWorldScenes({ scene, camera, font, config });
+  const worldScenes = createWorldScenes({ scene, camera, canvas, font, config });
 
   const targetRotation = new THREE.Vector2();
   const clock = new THREE.Clock();
@@ -148,7 +151,10 @@ async function buildIntroScene(canvas, config) {
   let gyroscopeEnabled = false;
   let motionReduced = motionQuery.matches;
   let worldBackdropActivated = false;
+  let doorFpsWindowStart = null;
+  let doorFpsFrames = 0;
   let orbitControls;
+  let doorResizeObserver;
 
   const onPointerMove = (event) => {
     if (mobileQuery.matches || revealTimelineActive || revealHasCompleted) return;
@@ -167,8 +173,14 @@ async function buildIntroScene(canvas, config) {
 
   const onResize = () => {
     if (disposed) return;
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.fov = mobileQuery.matches ? 50 : 38;
+    const doorArea = renderMode === "DOORS"
+      ? document.querySelector("#door-fallback")?.getBoundingClientRect()
+      : null;
+    const useDoorArea = doorArea && doorArea.width > 0 && doorArea.height > 0;
+    const renderWidth = useDoorArea ? doorArea.width : window.innerWidth;
+    const renderHeight = useDoorArea ? doorArea.height : window.innerHeight;
+    camera.aspect = renderWidth / renderHeight;
+    camera.fov = renderMode === "DOORS" ? 32 : mobileQuery.matches ? 50 : 38;
     camera.updateProjectionMatrix();
     const visibleWidth =
       Math.max(Math.abs(camera.position.z), 0.1) *
@@ -178,8 +190,24 @@ async function buildIntroScene(canvas, config) {
     const titleWidthRatio = mobileQuery.matches ? 0.78 : 0.88;
     const titleScale = Math.min(1, (visibleWidth * titleWidthRatio) / titleWidth);
     titleGroup.scale.setScalar(titleScale);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(rendererPixelRatio);
+    renderer.setSize(renderWidth, renderHeight);
+    if (useDoorArea) {
+      renderer.domElement.style.position = "absolute";
+      renderer.domElement.style.inset = "auto";
+      renderer.domElement.style.left = "0";
+      renderer.domElement.style.top = "0";
+      renderer.domElement.style.width = `${doorArea.width}px`;
+      renderer.domElement.style.height = `${doorArea.height}px`;
+    } else {
+      renderer.domElement.style.position = "fixed";
+      renderer.domElement.style.inset = "0";
+      renderer.domElement.style.left = "";
+      renderer.domElement.style.top = "";
+      renderer.domElement.style.width = `${window.innerWidth}px`;
+      renderer.domElement.style.height = `${window.innerHeight}px`;
+    }
+    if (renderMode === "DOORS") worldScenes.resize();
   };
 
   const stopRenderLoop = () => {
@@ -190,6 +218,12 @@ async function buildIntroScene(canvas, config) {
   const syncRenderLoop = () => {
     const shouldRender = sceneActive && !document.hidden && !disposed;
     const shouldDisplayCanvas = shouldRender && renderMode !== "WALL";
+    const worldStage = document.querySelector("#stage-two");
+    renderer.domElement.style.zIndex = renderMode === "DOORS" ? "0" : "2";
+    if (worldStage) {
+      worldStage.style.zIndex = renderMode === "DOORS" ? "3" : "";
+      worldStage.style.backgroundColor = renderMode === "DOORS" ? "transparent" : "";
+    }
     renderer.domElement.style.display = shouldDisplayCanvas ? "block" : "none";
     renderer.domElement.style.visibility = shouldDisplayCanvas ? "visible" : "hidden";
     renderer.domElement.style.pointerEvents = "none";
@@ -201,12 +235,41 @@ async function buildIntroScene(canvas, config) {
   };
   const onVisibilityChange = () => syncRenderLoop();
   onResize();
+  const doorContainer = document.querySelector("#door-fallback");
+  if ("ResizeObserver" in window && doorContainer) {
+    doorResizeObserver = new ResizeObserver(() => {
+      if (renderMode === "DOORS") onResize();
+    });
+    doorResizeObserver.observe(doorContainer);
+  }
 
   const render = (time) => {
     animationFrame = null;
     if (!sceneActive || document.hidden || disposed) return;
     animationFrame = window.requestAnimationFrame(render);
     const elapsed = clock.getElapsedTime();
+    if (renderMode === "DOORS") {
+      if (doorFpsWindowStart === null) doorFpsWindowStart = time;
+      doorFpsFrames += 1;
+      const sampleDuration = time - doorFpsWindowStart;
+      if (sampleDuration >= 2000) {
+        const averageFps = doorFpsFrames * 1000 / sampleDuration;
+        if (averageFps < 30 && rendererPixelRatio > MIN_DOOR_PIXEL_RATIO) {
+          rendererPixelRatio = Math.max(
+            MIN_DOOR_PIXEL_RATIO,
+            Math.round((rendererPixelRatio - DOOR_PIXEL_RATIO_STEP) * 100) / 100,
+          );
+          renderer.setPixelRatio(rendererPixelRatio);
+          const doorArea = document.querySelector("#door-fallback")?.getBoundingClientRect();
+          if (doorArea?.width && doorArea.height) renderer.setSize(doorArea.width, doorArea.height);
+        }
+        doorFpsWindowStart = time;
+        doorFpsFrames = 0;
+      }
+    } else {
+      doorFpsWindowStart = null;
+      doorFpsFrames = 0;
+    }
     if (renderMode === "INTRO" && !motionReduced) {
       titleGroup.rotation.x += (targetRotation.x - titleGroup.rotation.x) * 0.055;
       titleGroup.rotation.y += (targetRotation.y - titleGroup.rotation.y) * 0.055;
@@ -245,7 +308,18 @@ async function buildIntroScene(canvas, config) {
       if (!["INTRO", "DOORS", "WALL"].includes(mode)) {
         throw new Error(`Unknown intro scene render mode: ${mode}`);
       }
+      if (mode !== renderMode) {
+        doorFpsWindowStart = null;
+        doorFpsFrames = 0;
+      }
       renderMode = mode;
+      const doorArea = document.querySelector("#door-fallback");
+      if (mode === "DOORS" && doorArea && renderer.domElement.parentElement !== doorArea) {
+        doorArea.prepend(renderer.domElement);
+      } else if (mode !== "DOORS" && renderer.domElement.parentElement !== document.querySelector("#app")) {
+        document.querySelector("#app").insertBefore(renderer.domElement, document.querySelector("#reveal-flash"));
+      }
+      onResize();
       syncRenderLoop();
     },
     getStats() {
@@ -316,6 +390,7 @@ async function buildIntroScene(canvas, config) {
       window.removeEventListener("orientationchange", onResize);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("deviceorientation", onDeviceOrientation);
+      doorResizeObserver?.disconnect();
       orbitControls?.dispose();
       worldScenes.dispose();
       removeIntroTitle();

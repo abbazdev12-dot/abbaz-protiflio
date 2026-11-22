@@ -1,8 +1,11 @@
 import "./styles.css";
+import "./theme-polish.css";
 import { portfolioConfig, videoArchive } from "./config/config.js";
 import { initHeroExperience } from "./hero/loader.js";
 import { initInfiniteWall } from "./gallery/infinite-wall.js";
 import { ActiveSceneManager } from "./core/active-scene-manager.js";
+import { initElitePolish } from "./elite-polish.js";
+import { closeHireModal, openHireModal } from "./hireModal.js";
 
 /**
  * main.js – Portfolio entry point
@@ -30,6 +33,7 @@ const homeHeroBioToggleLabel = document.querySelector("#home-hero-bio-toggle-lab
 const homeHeroBio = document.querySelector("#home-hero-bio");
 const homeHeroBioStack = document.querySelector("#home-hero-bio-stack");
 const homeHeroBioLinks = document.querySelector("#home-hero-bio-links");
+const hireButton = document.querySelector('.home-hero__actions .hero-cta--primary[href="#contact"]');
 const heroPortrait = document.querySelector("#hero-portrait");
 const heroPortraitImage = document.querySelector("#hero-portrait-image");
 const heroPortraitPlaceholder = document.querySelector(".hero-portrait__placeholder");
@@ -92,8 +96,7 @@ const collectionPlayerFullscreen = document.querySelector("#collection-player-fu
 
 // ── Dialogs & tools ─────────────────────────────────────────────
 const doorFallback = document.querySelector("#door-fallback");
-const doorSelectionTitle = document.querySelector("#door-selection-title");
-const doorSelectionSubtitle = document.querySelector("#door-selection-subtitle");
+const doorHoverDescription = document.querySelector("#door-hover-description");
 const commandButton = document.querySelector("#command-button");
 const freeLookButton = document.querySelector("#free-look-button");
 const commandDialog = document.querySelector("#command-dialog");
@@ -149,6 +152,7 @@ let resizeInfiniteWall = () => {};
 let disposeWorldVisual = () => {};
 let fallbackDoorTransitionTimer;
 let fallbackDoorSelectionPending = false;
+const preloadedDoorMedia = new Map();
 let worldScene;
 let commandItems = [];
 let commandIndex = 0;
@@ -189,10 +193,10 @@ function setActiveSceneState(state) {
 }
 
 const skillVisualAccents = {
-  "Ethical Hacking": "#22c55e",
-  "Full Stack Development": "#8b5cf6",
-  "Forex Trading": "#f3e5ab",
-  "Futures Trading": "#3b82f6",
+  "Ethical Hacking": "#6C63FF",
+  "Full Stack Development": "#6C63FF",
+  "Forex Trading": "#FF5C7A",
+  "Futures Trading": "#A9AEBA",
 };
 
 const projectFilterOptions = [
@@ -341,7 +345,7 @@ function createCandlestickVisual(canvas, trackDisposal = true, colors) {
       const low = Math.max(open, close) + 10;
       const color = close >= open
         ? colors?.up || "#22c55e"
-        : colors?.down || "#f3e5ab";
+        : colors?.down || "#FF5C7A";
       context.strokeStyle = color;
       context.fillStyle = color;
       context.beginPath();
@@ -473,19 +477,55 @@ function selectFallbackDoor(identity, door) {
       detail: { doorId: identity.id },
     }));
   };
+  const sceneDoorTitle = identity.id === "me" ? "Futures Trading" : identity.skillTitle;
+  if (worldScene?.selectDoor(sceneDoorTitle, { doorId: identity.id })) return;
   if (document.body.classList.contains("reduce-motion") || reduceMotionQuery.matches) {
     enterWorld();
     return;
   }
-
   fallbackDoorTransitionTimer = window.setTimeout(() => {
     fallbackDoorTransitionTimer = undefined;
     enterWorld();
-  }, 900);
+  }, 350);
+}
+
+function prefetchDoorDestination(identity) {
+  if (preloadedDoorMedia.has(identity.id)) return;
+  const destination = portfolioConfig.doors.find((door) => door.id === identity.id);
+  if (!destination) return;
+
+  const mediaPreloaders = destination.videos
+    .slice(0, 4)
+    .filter((video) => video.src)
+    .map(({ src }) => {
+      const preloader = document.createElement("video");
+      preloader.preload = "metadata";
+      preloader.muted = true;
+      preloader.src = src;
+      preloader.load();
+      return preloader;
+    });
+  preloadedDoorMedia.set(identity.id, mediaPreloaders);
+}
+
+function disposePreloadedDoorMedia() {
+  preloadedDoorMedia.forEach((preloaders) => {
+    preloaders.forEach((preloader) => {
+      preloader.pause();
+      preloader.removeAttribute("src");
+      preloader.load();
+    });
+  });
+  preloadedDoorMedia.clear();
 }
 
 function renderDoorContent() {
   doorFallback.replaceChildren();
+  const existingCaption = document.querySelector(".door-scene-caption");
+  existingCaption?.remove();
+  const caption = createTextElement("p", "door-scene-caption", "HOVER TO OPEN · CLICK TO ENTER");
+  caption.setAttribute("aria-hidden", "true");
+  doorHoverDescription.insertAdjacentElement("afterend", caption);
   doorIdentities.forEach((identity) => {
     const door = document.createElement("button");
     door.className = "door-fallback__item";
@@ -517,10 +557,6 @@ function renderDoorContent() {
       edge,
       handle,
       hinges,
-      createTextElement("span", "door-fallback__number", identity.number),
-      createTextElement("span", "door-fallback__label", identity.title),
-      createTextElement("span", "door-fallback__subtitle", identity.subtitle),
-      createTextElement("span", "door-fallback__enter", "ENTER  ↗"),
     );
     const frame = createTextElement("span", "door-fallback__frame", "");
     frame.setAttribute("aria-hidden", "true");
@@ -531,11 +567,15 @@ function renderDoorContent() {
       });
       doorFallback.classList.toggle("has-active-door", Boolean(activeDoor));
       const activeIdentity = doorIdentities.find((entry) => entry.id === activeDoor?.dataset.doorId);
-      doorSelectionTitle.textContent = activeIdentity?.title || "CHOOSE A WORLD";
-      doorSelectionSubtitle.textContent =
-        activeIdentity?.subtitle || "Step inside the ideas, work, and becoming.";
+      doorHoverDescription.textContent = activeIdentity?.subtitle || "Choose a world";
+      window.dispatchEvent(new CustomEvent("portfolio:door-hover", {
+        detail: { title: activeIdentity?.skillTitle || null },
+      }));
     };
-    door.addEventListener("pointerenter", () => setActiveDoor(door), { signal: uiAbortController.signal });
+    door.addEventListener("pointerenter", () => {
+      prefetchDoorDestination(identity);
+      setActiveDoor(door);
+    }, { signal: uiAbortController.signal });
     door.addEventListener("pointerleave", () => {
       if (!door.matches(":focus-within")) setActiveDoor(null);
     }, { signal: uiAbortController.signal });
@@ -787,7 +827,7 @@ function renderPortfolioContent() {
     element.textContent = portfolioConfig.tagline;
   });
   profileAge.textContent = String(portfolioConfig.age);
-  profileLevel.textContent = portfolioConfig.experienceLevel;
+  profileLevel.textContent = `● ${portfolioConfig.status.heading}`;
   heroPortraitPlaceholder.setAttribute("aria-label", `Portrait placeholder for ${portfolioName}`);
   const portraitUrl = safeWebUrl(portfolioConfig.photoUrl, true);
   if (portraitUrl) {
@@ -978,6 +1018,7 @@ function renderPortfolioContent() {
       label: link.textContent.trim(),
       href: link.getAttribute("href"),
     })),
+    { label: "Hire me", href: "#contact" },
     ...portfolioConfig.skills.map((skill) => ({
       label: skill.title,
       href: "#skills",
@@ -998,14 +1039,9 @@ function updateLocalTime() {
   const time = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
-  }).format(now).replace(/\s/g, "").toLowerCase();
-  const date = new Intl.DateTimeFormat(undefined, {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).formatToParts(now);
-  const dateParts = Object.fromEntries(date.map(({ type, value }) => [type, value]));
-  localTime.textContent = `${time} · ${dateParts.day} ${dateParts.month}, ${dateParts.year}`;
+    hour12: false,
+  }).format(now).replace(/\s/g, "");
+  localTime.textContent = `LOCAL // ${time}`;
 }
 
 const abilityProfileHash = "#profile/abilities";
@@ -1274,23 +1310,43 @@ function initActiveNavigation() {
   const targets = links
     .map((link) => ({ link, target: document.querySelector(link.getAttribute("href")) }))
     .filter(({ target }) => target);
+  const doorsSection = document.querySelector("#doors");
+  const visibleTargets = new Map();
   const observer = new IntersectionObserver((entries) => {
-    const active = entries
-      .filter((entry) => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (!active) return;
+    entries.forEach((entry) => visibleTargets.set(entry.target, entry));
+    const doorsBounds = doorsSection.getBoundingClientRect();
+    const syncHash = (target) => {
+      if (
+        location.hash === abilityProfileHash ||
+        location.hash.startsWith("#collection/") ||
+        location.hash.startsWith("#world/")
+      ) return;
+      const nextHash = `#${target.id}`;
+      if (location.hash !== nextHash) history.replaceState(history.state, "", nextHash);
+    };
+    if (doorsBounds.top < window.innerHeight && doorsBounds.bottom > 0) {
+      links.forEach((link) => link.removeAttribute("aria-current"));
+      syncHash(doorsSection);
+      return;
+    }
+    const active = targets
+      .map(({ link, target }) => ({ link, entry: visibleTargets.get(target) }))
+      .filter(({ entry }) => entry?.isIntersecting)
+      .sort((a, b) => b.entry.intersectionRatio - a.entry.intersectionRatio)[0];
+    if (!active) {
+      links.forEach((link) => link.removeAttribute("aria-current"));
+      return;
+    }
     links.forEach((link) => {
-      if (link.getAttribute("href") === `#${active.target.id}`) {
-        link.setAttribute("aria-current", "location");
-      } else {
-        link.removeAttribute("aria-current");
-      }
+      if (link === active.link) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
     });
+    syncHash(active.entry.target);
   }, {
-    rootMargin: "-30% 0px -55% 0px",
-    threshold: [0, 0.15, 0.35, 0.6],
+    threshold: [0, 0.15, 0.35, 0.6, 1],
   });
   targets.forEach(({ target }) => observer.observe(target));
+  observer.observe(doorsSection);
   return () => observer.disconnect();
 }
 
@@ -1875,10 +1931,10 @@ function renderCollection(skill, identity) {
   });
 }
 
-function transitionCollection(entering, onReveal) {
+function transitionCollection(entering, onReveal, doorEntry = false) {
   collectionTransitionTimeline?.kill();
   collectionTransitionTimeline = undefined;
-  gsap?.set(revealFlash, { visibility: "hidden", opacity: 0 });
+  if (!doorEntry) gsap?.set(revealFlash, { visibility: "hidden", opacity: 0 });
 
   if (
     !gsap ||
@@ -1905,6 +1961,7 @@ function transitionCollection(entering, onReveal) {
 
   if (entering) {
     onReveal();
+    if (doorEntry) return;
     gsap.set(revealTargets, { opacity: 0, y: 18, filter: "blur(5px)" });
     collectionTransitionTimeline = gsap.timeline({
       onComplete() {
@@ -2051,7 +2108,7 @@ function openCollection(title, { pushHistory = true, identityId } = {}) {
     collectionView.removeAttribute("inert");
     (collectionView.querySelector(".video-wall__back") || collectionBackButton)
       .focus({ preventScroll: true });
-  });
+  }, Boolean(identity && fallbackDoorSelectionPending));
 }
 
 function closeCollection({ fromHistory = false } = {}) {
@@ -2202,8 +2259,7 @@ function updateWorldProgress(progress) {
   const doors = document.querySelector("#doors");
   if (collectionView.hidden) {
     const doorsBounds = doors.getBoundingClientRect();
-    const doorsInView = doorsBounds.top < window.innerHeight * 0.9
-      && doorsBounds.bottom > window.innerHeight * 0.1;
+    const doorsInView = doorsBounds.top < window.innerHeight && doorsBounds.bottom > 0;
     setActiveSceneState(doorsInView ? "DOORS" : "PORTFOLIO");
   }
   const scrollRange = Math.max(stageTwo.scrollHeight - window.innerHeight, 1);
@@ -2373,6 +2429,16 @@ copyEmailButton.addEventListener("click", async () => {
 motionButton.addEventListener("click", () => {
   setReducedMotion(!document.body.classList.contains("reduce-motion"));
 }, uiListenerOptions);
+hireButton?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  openHireModal({
+    config: portfolioConfig,
+    lenis,
+    sceneManager,
+    opener: hireButton,
+  });
+}, uiListenerOptions);
 abilityToggle.addEventListener("click", () => openAbilityProfile(), uiListenerOptions);
 homeHeroBioToggle.addEventListener("click", () => {
   const expanded = homeHeroBioToggle.getAttribute("aria-expanded") !== "true";
@@ -2409,11 +2475,16 @@ window.addEventListener("portfolio:project-select", onProjectSelect, uiListenerO
 reduceMotionQuery.addEventListener("change", (event) => setReducedMotion(event.matches), uiListenerOptions);
 setReducedMotion(reduceMotionQuery.matches);
 renderPortfolioContent();
+initElitePolish({
+  config: portfolioConfig,
+  reducedMotion: reduceMotionQuery,
+});
 if (location.hash === abilityProfileHash) {
   openAbilityProfile({ pushHistory: false, returnTarget: abilityToggle });
 }
 
 function unlockWorld() {
+  const initialHash = location.hash;
   stageOne.setAttribute("aria-hidden", "true");
   stageOne.setAttribute("inert", "");
   stageOne.hidden = true;
@@ -2480,10 +2551,9 @@ function unlockWorld() {
     updateWorldProgress(worldScrollTrigger.progress);
     ScrollTrigger.refresh();
     window.setTimeout(onCollectionHistoryChange, 0);
-    const initialHash = location.hash;
     if (initialHash && !initialHash.startsWith("#collection/") && initialHash !== abilityProfileHash) {
       window.setTimeout(() => {
-        if (location.hash === initialHash) navigateTo(initialHash);
+        navigateTo(initialHash);
       }, 0);
     }
   } catch (error) {
@@ -2544,8 +2614,10 @@ async function boot() {
 function teardown() {
   if (destroyed) return;
   destroyed = true;
+  closeHireModal();
   uiAbortController.abort();
   window.clearTimeout(fallbackDoorTransitionTimer);
+  disposePreloadedDoorMedia();
   window.clearTimeout(portraitRetryTimer);
   finishPortraitLoad?.();
   introSequence?.destroy();

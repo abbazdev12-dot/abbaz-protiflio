@@ -264,7 +264,7 @@ function createPointCloud(canvas, frame, image, isMobile) {
     antialias: false,
     powerPreference: "low-power",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x070914, 0);
@@ -397,7 +397,7 @@ function createPointCloud(canvas, frame, image, isMobile) {
   };
   const onVisibilityChange = () => syncLoop();
   const resize = () => {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.setPixelRatio(ratio);
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     camera.aspect = window.innerWidth / window.innerHeight;

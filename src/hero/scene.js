@@ -217,7 +217,7 @@ export function createHeroScene(canvas, hero, settings, reducedMotion = false) {
   geometry.setAttribute("aNetwork", new THREE.BufferAttribute(network, 3));
   geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
 
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
@@ -274,7 +274,7 @@ export function createHeroScene(canvas, hero, settings, reducedMotion = false) {
     const bounds = hero.getBoundingClientRect();
     const width = Math.max(1, bounds.width);
     const height = Math.max(1, bounds.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.position.z = baseCameraDistance * Math.max(1, 0.8 / camera.aspect);

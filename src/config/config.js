@@ -201,6 +201,20 @@ export const portfolioConfig = {
 
   // ── Contact & Socials ───────────────────────────────────────────
   email: "4bbazpa@gmail.com",
+  hire: {
+    email: "4bbazpa@gmail.com",
+    endpoint: "",
+    startingPrice: "",
+    replyTime: "one business day",
+    services: [
+      "Website or web app",
+      "Interactive 3D website",
+      "Security audit (ethical hacking)",
+      "Something else / a question",
+    ],
+    timelines: ["As soon as possible", "Within a month", "2-3 months", "Flexible"],
+    budgets: ["Under $500", "$500-$1,500", "$1,500-$5,000", "$5,000+"],
+  },
   resumeUrl: "", // EDIT HERE: Add a public resume PDF URL or local path.
   socials: {
     github: "", // EDIT HERE: Add the GitHub profile URL.
@@ -227,6 +241,14 @@ export const portfolioConfig = {
   abilityCard: {
     title: "My ability card",
     description: "A work in progress across four areas.",
+    matrix: [
+      { label: "Hacking", value: 82, placeholder: true },
+      { label: "Full-Stack", value: 88, placeholder: true },
+      { label: "Forex", value: 72, placeholder: true },
+      { label: "Futures", value: 64, placeholder: true },
+      { label: "Design", value: 76, placeholder: true },
+      { label: "Systems", value: 84, placeholder: true },
+    ],
     items: [
       { title: "Forex Trading", detail: "Market structure, risk rules, and journaling." },
       {
